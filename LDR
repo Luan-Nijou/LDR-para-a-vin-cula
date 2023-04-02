@@ -1,0 +1,63 @@
+ int LDR_PIN = A0;
+ int GREEN_LED_PIN = 2;
+ int YELLOW_LED_PIN = 3;
+ int RED_LED_PIN = 4;
+ int BUZZER_PIN = 8;
+
+// Define os limiares de luminosidade
+int MODO_OK = 870;  // Nível de luminosidade considerado OK
+int MODO_ALERTA = 950;  // Nível de luminosidade considerado em alerta
+
+// Define o estado atual do sistema
+int systemState = 0;  // 0 = OK, 1 = Alerta, 2 = Problema
+
+void setup() {
+  // Configura as portas dos componentes
+  pinMode(GREEN_LED_PIN, OUTPUT);
+  pinMode(YELLOW_LED_PIN, OUTPUT);
+  pinMode(RED_LED_PIN, OUTPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
+}
+
+void loop() {
+  // Lê o valor de luminosidade do sensor
+  int luminosity = analogRead(LDR_PIN);
+  Serial.begin(9600);
+  Serial.println(luminosity);
+  
+  // Verifica o estado atual do sistema
+  if (luminosity <= MODO_OK) {
+    systemState = 0;  // OK
+  } else if (luminosity <= MODO_ALERTA) {
+    systemState = 1;  // Alerta
+  } else {
+    systemState = 2;  // Problema
+  }
+  
+  switch (systemState) {
+    case 0:  // OK
+      digitalWrite(GREEN_LED_PIN, HIGH);
+      digitalWrite(YELLOW_LED_PIN, LOW);
+      digitalWrite(RED_LED_PIN, LOW);
+      noTone(BUZZER_PIN);
+      break;
+    case 1:  // Alerta
+      digitalWrite(GREEN_LED_PIN, LOW);
+      digitalWrite(YELLOW_LED_PIN, HIGH);
+      digitalWrite(RED_LED_PIN, LOW);
+      tone(BUZZER_PIN, 1000, 3000);  // Toca a buzina por 3 segundos
+      break;
+    case 2:  // Problema
+      digitalWrite(GREEN_LED_PIN, LOW);
+      digitalWrite(YELLOW_LED_PIN, LOW);
+      digitalWrite(RED_LED_PIN, HIGH);
+      noTone(BUZZER_PIN);
+      break;
+   }
+  
+  
+  
+  // Aguarda 500ms antes de ler o sensor novamente
+  delay(500);
+}
+
